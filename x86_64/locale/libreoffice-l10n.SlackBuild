@@ -1,0 +1,96 @@
+#/bin/sh
+#
+# Based on SlackBuild by George Vlahavas (vlahavas~at~gmail~dot~com)
+#
+# Updated by Dimitris Tzemos to Download and build files 
+#
+# This download and builds all available language packs for libreoffice.org
+# Language packs were downloaded from
+#
+# ftp://ftp.nluug.nl/pub/office/libreoffice/libreoffice/stable/3.5.3/rpm/x86_64/
+# You need to create a langpacks directory in the same
+# location as the SlackBuild file.
+#
+# Run this scrit as root
+# to create the i686 files Run this script with ARCH=i686 sh libreoffice-l10n.SlackBuild
+#
+VERSION=3.6.2
+ARCH=${ARCH:-x86_64}
+BUILD=1dj
+
+if [ $ARCH = "x86_64" ];then
+	LIBDIRSUFFIX="64"
+        ver_arch=x86-64
+        DARCH=x86_64
+else
+	LIBDIRSUFFIX=""
+        ver_arch=x86
+        DARCH=x86
+fi
+
+startdir=`pwd`
+
+rm -rf {pkg,src,libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD}
+
+mkdir {pkg,src,libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD}
+rm -rf langpacks/*
+cd langpacks
+
+for i in `cat $startdir/langpack-list |sed 's/\([a-zA-Z-]*\).*/\1/'`; do
+file="ftp://ftp.nluug.nl/pub/office/libreoffice/libreoffice/stable/$VERSION/rpm/$DARCH/LibO_${VERSION}_Linux_${ver_arch}_langpack-rpm_${i}.tar.gz"
+if [ -f `wget -O/dev/null -q $file` ]; then 
+wget $file
+echo "Downloading... (${file})." 
+fi
+clear
+done
+
+for i in `ls *.tar.gz`;do
+	cd $startdir/langpacks
+	LANG=`echo $i | sed "s/.*langpack-rpm_\(.*\)\.tar\.gz/\1/"`
+	LONGLANG=`grep "^$LANG " $startdir/langpack-list | sed "s/$LANG \(.*\)/\1/"`
+	echo "Found langpack ${LANG} (${LONGLANG})."
+done
+
+for i in `ls *.tar.gz`; do
+	cd $startdir/langpacks
+	LANG=`echo $i | sed "s/.*langpack-rpm_\(.*\)\.tar\.gz/\1/"`
+	LONGLANG=`grep "^$LANG " $startdir/langpack-list | sed "s/$LANG \(.*\)/\1/"`
+	echo "Creating langpack for ${LANG} (${LONGLANG})..."
+	mkdir -p $startdir/src/$LANG
+	tar xf $i -C $startdir/src/$LANG
+	cd $startdir/src/$LANG/`ls $startdir/src/$LANG`/RPMS
+	for rpm in `ls *.rpm`; do
+		rpm2targz $rpm
+		rm $rpm
+	done
+	for targz in `ls *.tar.gz`; do
+		tar xf $targz
+	done
+	mkdir -p $startdir/pkg/$LANG/usr/lib${LIBDIRSUFFIX}
+	mv opt/* $startdir/pkg/$LANG/usr/lib${LIBDIRSUFFIX}/
+	mkdir -p $startdir/pkg/$LANG/install
+	sed "s/__lang__/$LANG/g" $startdir/slack-desc.template | \
+	sed "s/__longlang__/$LONGLANG/g" > $startdir/pkg/$LANG/install/slack-desc
+	cd $startdir/pkg/$LANG
+	
+	# the english dictionaries seem to be included in many other
+	# langpacks for some weird reason
+	rm -rf usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en
+	
+	chown -R root:root .
+	find . \
+	\( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+	-exec chmod 755 {} \; -o \
+	\( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+	-exec chmod 644 {} \;
+	/sbin/makepkg -l y -c n $startdir/libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD/libreoffice-l10n-$LANG-$VERSION-$ARCH-$BUILD.txz
+	(
+	cd $startdir/libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD
+	md5sum libreoffice-l10n-$LANG-$VERSION-$ARCH-$BUILD.txz > libreoffice-l10n-$LANG-$VERSION-$ARCH-$BUILD.md5 
+	)
+	rm -rf $startdir/src/$LANG
+	rm -rf $startdir/pkg/$LANG
+done
+
+rm -rf $startdir/{pkg,src}

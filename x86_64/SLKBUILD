@@ -1,0 +1,101 @@
+#Maintainer: George Vlahavas <vlahavas~at~gmail~dot~com>
+
+pkgname=libreoffice
+pkgver=3.6.3
+_minorver=3.6.3.2
+pkgrel=1dj
+arch=x86_64
+source=("http://download.documentfoundation.org/libreoffice/stable/3.6.3/deb/x86_64/LibO_3.6.3_Linux_x86-64_install-deb_en-US.tar.gz")
+url=http://www.documentfoundation.org/
+
+doinst() {
+if [ -x usr/bin/update-mime-database ]; then
+	usr/bin/update-mime-database usr/share/mime >/dev/null 2>&1
+fi
+if [ -x /usr/bin/update-desktop-database ]; then
+	usr/bin/update-desktop-database -q usr/share/applications >/dev/null 2>&1
+fi
+}
+
+slackdesc=\
+(
+#|-----handy-ruler------------------------------------------------------|
+"libreoffice (free office suite)" 
+"LibreOffice is an Open Source, community-developed, office"
+"productivity suite. It includes key desktop applications, such as a"
+"word processor, spreadsheet, presentation manager, formula editor and"
+"drawing program, with a user interface and feature set similar to"
+"other office suites. LibreOffice also works transparently with a"
+"variety of file formats, including Microsoft Office File Formats."
+""
+"libreoffice home: http://www.documentfoundation.org/"
+)
+
+
+build() {
+	# Unpack DEBS
+	cd $startdir/src/LibO_${_minorver}_Linux_x86-64_install-deb_en-US/DEBS
+	
+	for i in `ls *.deb`; do
+		ar x $i
+		tar xf data.tar.gz
+		rm data.tar.gz control.tar.gz
+	done
+	
+	# Unpack desktop-integration DEB and install icons and mime
+	# files
+	cd desktop-integration
+	ar x libreoffice*.deb
+	tar xf data.tar.gz
+	mkdir -p $startdir/pkg/usr/share
+	mv usr/share/icons $startdir/pkg/usr/share/
+	mv usr/share/mime $startdir/pkg/usr/share/
+	mv usr/share/mimelnk $startdir/pkg/usr/share/
+	cd ..
+	 
+	# Install program files
+	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}
+	mv opt/* $startdir/pkg/usr/lib${LIBDIRSUFFIX}/
+
+	mkdir -p $startdir/pkg/usr/share/applications
+	mv $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice3.6/share/xdg/*.desktop $startdir/pkg/usr/share/applications/
+	rm $startdir/pkg/usr/share/applications/{startcenter,qstart,javafilter}.desktop
+	rmdir $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice3.6/share/xdg
+	mkdir -p $startdir/pkg/usr/bin
+	(
+	cd $startdir/pkg/usr/bin
+	ln -s ../lib${LIBDIRSUFFIX}/libreoffice3.6/program/soffice soffice
+	)
+	echo "#!/bin/sh" > $startdir/pkg/usr/bin/libreoffice
+	echo "exec /usr/lib${LIBDIRSUFFIX}/libreoffice3.6/program/soffice \"\$@\"" >> $startdir/pkg/usr/bin/libreoffice
+	chmod 755 $startdir/pkg/usr/bin/libreoffice
+	echo "#!/bin/sh" > $startdir/pkg/usr/bin/libreoffice-printeradmin
+	echo "exec /usr/lib${LIBDIRSUFFIX}/libreoffice3.6/program/spadmin" > $startdir/pkg/usr/bin/libreoffice-printeradmin
+	chmod 755 $startdir/pkg/usr/bin/libreoffice-printeradmin
+	
+	cd $startdir/pkg/usr/bin
+	for APP in base calc draw impress math padmin writer; do
+		ln -s /usr/lib${LIBDIRSUFFIX}/libreoffice3.6/program/s${APP} lo${APP}
+	done
+
+	# Fix para los execs de los archivos .desktop   
+	cd $startdir/pkg/usr/share/applications/
+	for APP in base calc draw impress math printeradmin writer; do
+	sed -i 's/Exec=libreoffice3.6/Exec=libreoffice/' $APP.desktop ;
+	done
+
+	# we don't need the included fonts, we already have packages for
+	# them anyway. We want to keep the opens___.ttf and
+	# fc_local.conf files.
+	find \
+		$startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice3.6/share/fonts/truetype/ \
+		! -name "opens___.ttf" ! -name "fc_local.conf" \
+		-type f \
+		-exec rm {} \;
+
+	# these dictionaries are not needed either. They are included in
+	# the respective langpacks.
+	rm -rf $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice3.6/share/extensions/dict-{es,fr}
+
+	chown -R root:root $startdir/pkg
+}
