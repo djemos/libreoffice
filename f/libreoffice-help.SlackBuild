@@ -1,0 +1,99 @@
+#/bin/sh
+#
+# Based on SlackBuild by George Vlahavas (vlahavas~at~gmail~dot~com)
+# Updated by Dimitris Tzemos (djemos~at~slackel~dot~gr)
+# Former Maintained by Frédéric Galusik <fredg~at~salixos~dot~org>
+# Current matainer : Richard Lapointe <richard@laprjns.com>
+# Downloaded from#
+# URL=http://download.documentfoundation.org/libreoffice/stable/$VERSION/rpm/$HWARCH/
+#
+# You need to create the helppacks directory in the same
+# location as the SlackBuild file.
+#
+# Run this script as (fake)root
+#
+
+VERSION=4.4.3
+ARCH=${ARCH:-x86_64}
+BUILD=1dj
+
+if [ -z "$ARCH" ]; then
+	case "$( uname -m )" in
+		i?86) export ARCH=i486 ;;
+		arm*) export ARCH=arm ;;
+		*) export ARCH=$( uname -m ) ;;
+	esac
+	echo "Automatically setting ARCH to $ARCH"
+fi
+
+if [ $ARCH = "x86_64" ];then
+	LIBDIRSUFFIX="64"
+else
+	LIBDIRSUFFIX=""
+fi
+
+startdir=`pwd`
+
+rm -rf {pkg,src,libreoffice-help-packages-$VERSION-$ARCH-$BUILD}
+mkdir {pkg,src,libreoffice-help-packages-$VERSION-$ARCH-$BUILD}
+
+SRC=$startdir/src
+PKG=$startdir/pkg
+
+# log
+(
+
+cd helppacks
+
+for i in `ls *.tar.gz`;do
+	cd $startdir/helppacks
+	LANG=`echo $i | sed "s/.*helppack_\(.*\)\.tar\.gz/\1/"`
+	LONGLANG=`grep "^$LANG " $startdir/langpack-list | sed "s/$LANG \(.*\)/\1/"`
+	echo "Found helppack ${LANG} (${LONGLANG})."
+done
+
+for i in `ls *.tar.gz`; do
+	cd $startdir/helppacks
+	LANG=`echo $i | sed "s/.*_helppack_\(.*\)\.tar\.gz/\1/"`
+	LONGLANG=`grep "^$LANG " $startdir/langpack-list | sed "s/$LANG \(.*\)/\1/"`
+	echo "Creating langpack for ${LANG} (${LONGLANG})..."
+	mkdir -p $SRC/$LANG
+	tar xf $i -C $SRC/$LANG
+	cd $SRC/$LANG/`ls $startdir/src/$LANG`/RPMS
+	for rpm in `ls *.rpm`; do
+		rpm2targz $rpm
+		rm $rpm
+	done
+	for targz in `ls *.tar.gz`; do
+		tar xf $targz
+	done
+	mkdir -p $PKG/$LANG/usr/lib${LIBDIRSUFFIX}
+	mv opt/* $PKG/$LANG/usr/lib${LIBDIRSUFFIX}/
+	mkdir -p $PKG/$LANG/install
+	sed "s/__lang__/$LANG/g" $startdir/slack-desc.template | \
+	sed "s/__longlang__/$LONGLANG/g" > $startdir/pkg/$LANG/install/slack-desc
+	cd $PKG/$LANG
+	
+	# the english dictionaries seem to be included in many other
+	# langpacks for some weird reason
+	rm -rf usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en
+	
+	chown -R root:root .
+	find . \
+	\( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+	-exec chmod 755 {} \; -o \
+	\( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+	-exec chmod 644 {} \;
+	/sbin/makepkg -l y -c n $startdir/libreoffice-help-packages-$VERSION-$ARCH-$BUILD/libreoffice-help-$LANG-$VERSION-$ARCH-$BUILD.txz
+	(
+	cd $startdir/libreoffice-help-packages-$VERSION-$ARCH-$BUILD
+	md5sum libreoffice-help-$LANG-$VERSION-$ARCH-$BUILD.txz > libreoffice-help-$LANG-$VERSION-$ARCH-$BUILD.md5 
+	)
+	rm -rf $SRC/$LANG
+	rm -rf $PKG/$LANG
+done
+
+rm -rf $startdir/{pkg,src}
+
+# log ;) 
+) 2>&1 | tee "build-libreoffice-help-packages-$VERSION-$ARCH-$BUILD.log"
