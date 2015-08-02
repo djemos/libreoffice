@@ -13,7 +13,7 @@
 # Run this script as (fake)root
 #
 
-VERSION=4.4.3
+VERSION=4.4.4
 ARCH=${ARCH:-x86_64}
 BUILD=1dj
 
