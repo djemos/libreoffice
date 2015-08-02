@@ -14,7 +14,7 @@
 # After you download them, put them in a langpacks directory in the same
 # location as the SlackBuild file.
 
-VERSION=4.4.3
+VERSION=4.4.4
 ARCH=${ARCH:-x86_64}
 BUILD=1dj
 
