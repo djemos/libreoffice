@@ -4,9 +4,9 @@
 #fakeroot slkbuild -X produce the x86_64 package
 
 pkgname=libreoffice
-pkgver=4.4.4
-_majorver=4.4
-_minorver=4.4.4.3
+pkgver=5.0.1
+_majorver=5.0
+_minorver=5.0.1.2
 pkgrel=1dj
 arch=${arch:-x86_64}
 HWarch=$([ $arch = x86_64 ] && echo "x86-64" || echo "x86")
