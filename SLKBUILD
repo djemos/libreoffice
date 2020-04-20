@@ -4,14 +4,14 @@
 #fakeroot slkbuild -X produce the x86_64 package
 
 pkgname=libreoffice
-pkgver=6.4.2
+pkgver=6.4.3
 _majorver=6.4
-_minorver=6.4.2.2
+_minorver=6.4.3.2
 pkgrel=1dj
 arch=${arch:-x86_64}
 HWarch=$([ $arch = x86_64 ] && echo "x86-64" || echo "x86")
 Darch=$([ $arch = x86_64 ] && echo "x86_64" || echo "x86")
-source=("http://download.documentfoundation.org/libreoffice/stable/$pkgver/rpm/$Darch/LibreOffice_${pkgver}_Linux_${HWarch}_rpm.tar.gz")
+source=("http://download.documentfoundation.org/libreoffice/stable/$pkgver/deb/$Darch/LibreOffice_${pkgver}_Linux_${HWarch}_deb.tar.gz")
 
 url=http://www.documentfoundation.org
 
@@ -41,24 +41,20 @@ slackdesc=\
 
 build() {
 	HWarch=$([ $arch = x86_64 ] && echo "x86-64" || echo "x86")
-	# Unpack RPMS
-	cd $startdir/src/LibreOffice_${_minorver}_Linux_${HWarch}_rpm/RPMS
-	# No, I don't want to update our packaged files after the fact
-	rm -f *onlineupdate*.rpm # We don't want this
-
-	for i in `ls *.rpm`; do
-	rpm2cpio < $i | cpio -imdv ; done
-	rm -rf desktop-integration *.rpm
+	# Unpack DEBS
+	cd $startdir/src/LibreOffice_${_minorver}_Linux_${HWarch}_deb/DEBS
+	for i in `ls *.deb`; do
+		  ar x $i
+		  tar xf data.tar.?z
+		  rm data.tar.?z control.tar.gz
+	done
 	
 	mkdir -p $startdir/pkg/usr/share
 	mv usr/share/icons $startdir/pkg/usr/share/
-	mv usr/share/mime $startdir/pkg/usr/share/
-	
+		
 	# Install program files
 	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}
 	mv opt/* $startdir/pkg/usr/lib${LIBDIRSUFFIX}/
-	#Kill a broken symlink
-	rm -f $startdir/pkg/usr/share/applications/libreoffice3-startcenter.desktop
 	
 	mkdir -p $startdir/pkg/usr/share/applications
 	mv $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/xdg/*.desktop $startdir/pkg/usr/share/applications/
@@ -94,7 +90,7 @@ build() {
 	# these dictionaries are not needed either. They are included in
 	# the respective langpacks.
 	rm -rf $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/extensions/dict-{es,fr,an}
-
+	
 	chown -R root:root $startdir/pkg
 	echo libreoffice-still > $startdir/$pkgname-$pkgver-$arch-$pkgrel.con
 }
