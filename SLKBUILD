@@ -1,17 +1,17 @@
-#Maintainer: Dimitris Tzemos <djemos~at~slackel~dot~gr>
+#Maintainer: Dimitris Tzemos <dijemos~at~gmail~dot~com>
 #execute this script with arch=i686 fakeroot slkbuild -X
 #to produce the i686 binary
 #fakeroot slkbuild -X produce the x86_64 package
 
 pkgname=libreoffice
-pkgver=5.0.1
-_majorver=5.0
-_minorver=5.0.1.2
+pkgver=6.4.2
+_majorver=6.4
+_minorver=6.4.2.2
 pkgrel=1dj
 arch=${arch:-x86_64}
 HWarch=$([ $arch = x86_64 ] && echo "x86-64" || echo "x86")
 Darch=$([ $arch = x86_64 ] && echo "x86_64" || echo "x86")
-source=("http://download.documentfoundation.org/libreoffice/stable/$pkgver/deb/$Darch/LibreOffice_${pkgver}_Linux_${HWarch}_deb.tar.gz")
+source=("http://download.documentfoundation.org/libreoffice/stable/$pkgver/rpm/$Darch/LibreOffice_${pkgver}_Linux_${HWarch}_rpm.tar.gz")
 
 url=http://www.documentfoundation.org
 
@@ -28,12 +28,12 @@ slackdesc=\
 (
 #|-----handy-ruler------------------------------------------------------|
 "libreoffice (free office suite)"
-"LibreOffice is an Open Source, community-developed, office"
-"productivity suite. It includes key desktop applications, such as a"
-"word processor, spreadsheet, presentation manager, formula editor and"
-"drawing program, with a user interface and feature set similar to"
+"LibreOffice is an Open Source,community-developed,office"
+"productivity suite. It includes key desktop applications,such as a"
+"word processor,spreadsheet,presentation manager,formula editor and"
+"drawing program,with a user interface and feature set similar to"
 "other office suites. LibreOffice also works transparently with a"
-"variety of file formats, including Microsoft Office File Formats."
+"variety of file formats,including Microsoft Office File Formats."
 ""
 "libreoffice home: http://www.documentfoundation.org/"
 )
@@ -41,35 +41,28 @@ slackdesc=\
 
 build() {
 	HWarch=$([ $arch = x86_64 ] && echo "x86-64" || echo "x86")
-	# Unpack DEBS
-	cd $startdir/src/LibreOffice_${_minorver}_Linux_${HWarch}_deb/DEBS
-	for i in `ls *.deb`; do
-		  ar x $i
-		  tar xf data.tar.gz
-		  rm data.tar.gz control.tar.gz
-	done
+	# Unpack RPMS
+	cd $startdir/src/LibreOffice_${_minorver}_Linux_${HWarch}_rpm/RPMS
+	# No, I don't want to update our packaged files after the fact
+	rm -f *onlineupdate*.rpm # We don't want this
+
+	for i in `ls *.rpm`; do
+	rpm2cpio < $i | cpio -imdv ; done
+	rm -rf desktop-integration *.rpm
 	
-	# Unpack desktop-integration DEB and install icons and mime
-	# files
-	#cd desktop-integration
-	#ar x libreoffice*.deb
-	#tar xf data.tar.gz
 	mkdir -p $startdir/pkg/usr/share
 	mv usr/share/icons $startdir/pkg/usr/share/
-	#mv usr/share/mime $startdir/pkg/usr/share/
-	mv usr/share/mimelnk $startdir/pkg/usr/share/
-	mv usr/share/mime-info $startdir/pkg/usr/share/
-	mv usr/share/application-registry $startdir/pkg/usr/share/
-	#cd ..
+	mv usr/share/mime $startdir/pkg/usr/share/
 	
 	# Install program files
 	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}
 	mv opt/* $startdir/pkg/usr/lib${LIBDIRSUFFIX}/
+	#Kill a broken symlink
+	rm -f $startdir/pkg/usr/share/applications/libreoffice3-startcenter.desktop
 	
 	mkdir -p $startdir/pkg/usr/share/applications
 	mv $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/xdg/*.desktop $startdir/pkg/usr/share/applications/
-	#rm $startdir/pkg/usr/share/applications/{startcenter,qstart,javafilter}.desktop
-	rm $startdir/pkg/usr/share/applications/{startcenter,qstart}.desktop
+	rm $startdir/pkg/usr/share/applications/startcenter.desktop
 	rmdir $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/xdg
 	mkdir -p $startdir/pkg/usr/bin
 	(
@@ -101,9 +94,7 @@ build() {
 	# these dictionaries are not needed either. They are included in
 	# the respective langpacks.
 	rm -rf $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/extensions/dict-{es,fr,an}
-	
-	# this one causes problems, we'll stick to the system lib
-	#rm $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/ure-link/lib/libstdc++.so.6
-	
+
 	chown -R root:root $startdir/pkg
+	echo libreoffice-still > $startdir/$pkgname-$pkgver-$arch-$pkgrel.con
 }
