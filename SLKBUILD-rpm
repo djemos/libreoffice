@@ -1,0 +1,100 @@
+#Maintainer: Dimitris Tzemos <dijemos~at~gmail~dot~com>
+#execute this script with arch=i686 fakeroot slkbuild -X
+#to produce the i686 binary
+#fakeroot slkbuild -X produce the x86_64 package
+
+pkgname=libreoffice
+pkgver=6.4.3
+_majorver=6.4
+_minorver=6.4.3.2
+pkgrel=1dj
+arch=${arch:-x86_64}
+HWarch=$([ $arch = x86_64 ] && echo "x86-64" || echo "x86")
+Darch=$([ $arch = x86_64 ] && echo "x86_64" || echo "x86")
+source=("http://download.documentfoundation.org/libreoffice/stable/$pkgver/rpm/$Darch/LibreOffice_${pkgver}_Linux_${HWarch}_rpm.tar.gz")
+
+url=http://www.documentfoundation.org
+
+doinst() {
+if [ -x /usr/bin/update-mime-database ]; then
+   /usr/bin/update-mime-database usr/share/mime >/dev/null 2>&1
+fi
+if [ -x /usr/bin/update-desktop-database ]; then
+   /usr/bin/update-desktop-database -q usr/share/applications >/dev/null 2>&1
+fi
+}
+
+slackdesc=\
+(
+#|-----handy-ruler------------------------------------------------------|
+"libreoffice (free office suite)"
+"LibreOffice is an Open Source,community-developed,office"
+"productivity suite. It includes key desktop applications,such as a"
+"word processor,spreadsheet,presentation manager,formula editor and"
+"drawing program,with a user interface and feature set similar to"
+"other office suites. LibreOffice also works transparently with a"
+"variety of file formats,including Microsoft Office File Formats."
+""
+"libreoffice home: http://www.documentfoundation.org/"
+)
+
+
+build() {
+	HWarch=$([ $arch = x86_64 ] && echo "x86-64" || echo "x86")
+	# Unpack RPMS
+	cd $startdir/src/LibreOffice_${_minorver}_Linux_${HWarch}_rpm/RPMS
+	# No, I don't want to update our packaged files after the fact
+	rm -f *onlineupdate*.rpm # We don't want this
+
+	for i in `ls *.rpm`; do
+	rpm2cpio < $i | cpio -imdv ; done
+	rm -rf desktop-integration *.rpm
+	
+	mkdir -p $startdir/pkg/usr/share
+	mv usr/share/icons $startdir/pkg/usr/share/
+	mv usr/share/mime $startdir/pkg/usr/share/
+	
+	# Install program files
+	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}
+	mv opt/* $startdir/pkg/usr/lib${LIBDIRSUFFIX}/
+	#Kill a broken symlink
+	rm -f $startdir/pkg/usr/share/applications/libreoffice3-startcenter.desktop
+	
+	mkdir -p $startdir/pkg/usr/share/applications
+	mv $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/xdg/*.desktop $startdir/pkg/usr/share/applications/
+	rm $startdir/pkg/usr/share/applications/startcenter.desktop
+	rmdir $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/xdg
+	mkdir -p $startdir/pkg/usr/bin
+	(
+	cd $startdir/pkg/usr/bin
+	ln -sf ../lib${LIBDIRSUFFIX}/libreoffice${_majorver}/program/soffice soffice
+	ln -sf ../lib${LIBDIRSUFFIX}/libreoffice${_majorver}/program/soffice libreoffice
+	ln -sf ../lib${LIBDIRSUFFIX}/libreoffice${_majorver}/program/soffice libreoffice${_majorver}
+	ln -sf ../lib${LIBDIRSUFFIX}/libreoffice${_majorver}/program/spadmin libreoffice-printeradmin
+	ln -sf ../lib${LIBDIRSUFFIX}/libreoffice${_majorver}/program/spadmin libreoffice${_majorver}-printeradmin
+	cd $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/program
+	ln -sf soffice.bin libreoffice
+	ln -sf soffice.bin libreoffice${_majorver}
+	)
+	
+	cd $startdir/pkg/usr/bin
+	for APP in base calc draw impress math padmin writer; do
+		  ln -s /usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/program/s${APP} lo${APP}
+	done
+	
+	# we don't need the included fonts, we already have packages for
+	# them anyway. We want to keep the opens___.ttf and
+	# fc_local.conf files.
+	find \
+		  $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/fonts/truetype/ \
+		  ! -name "opens___.ttf" ! -name "fc_local.conf" \
+		  -type f \
+		  -exec rm {} \;
+	
+	# these dictionaries are not needed either. They are included in
+	# the respective langpacks.
+	rm -rf $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice${_majorver}/share/extensions/dict-{es,fr,an}
+
+	chown -R root:root $startdir/pkg
+	echo libreoffice-still > $startdir/$pkgname-$pkgver-$arch-$pkgrel.con
+}
