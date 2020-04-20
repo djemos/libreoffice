@@ -14,19 +14,19 @@
 # After you download them, put them in a langpacks directory in the same
 # location as the SlackBuild file.
 
-VERSION=5.0.1
-ARCH=${ARCH:-x86_64}
+VERSION=6.4.2
+arch=${arch:-x86_64}
 BUILD=1dj
 
-if [ -z "$ARCH" ]; then
+if [ -z "$arch" ]; then
   case "$( uname -m )" in
-    i?86) ARCH=i486 ;;
-    arm*) ARCH=arm ;;
-       *) ARCH=$( uname -m ) ;;
+    i?86) arch=i486 ;;
+    arm*) arch=arm ;;
+       *) arch=$( uname -m ) ;;
   esac
 fi
 
-if [ $ARCH = "x86_64" ];then
+if [ $arch = "x86_64" ];then
 	LIBDIRSUFFIX="64"
 else
 	LIBDIRSUFFIX=""
@@ -34,8 +34,8 @@ fi
 
 startdir=`pwd`
 
-rm -rf {pkg,src,libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD}
-mkdir -p {pkg,src,libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD}
+rm -rf {pkg,src,libreoffice-l10n-packages-$VERSION-$arch-$BUILD}
+mkdir -p {pkg,src,libreoffice-l10n-packages-$VERSION-$arch-$BUILD}
 
 SRC=$startdir/src
 PKG=$startdir/pkg
@@ -86,10 +86,11 @@ for i in `ls *.tar.gz`; do
 	-exec chmod 755 {} \; -o \
 	\( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
 	-exec chmod 644 {} \;
-	/sbin/makepkg -l y -c n $startdir/libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD/libreoffice-l10n-$LANG-$VERSION-$ARCH-$BUILD.txz
+	/sbin/makepkg -l y -c n $startdir/libreoffice-l10n-packages-$VERSION-$arch-$BUILD/libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.txz
 	(
-	cd $startdir/libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD
-	md5sum libreoffice-l10n-$LANG-$VERSION-$ARCH-$BUILD.txz > libreoffice-l10n-$LANG-$VERSION-$ARCH-$BUILD.md5 
+	cd $startdir/libreoffice-l10n-packages-$VERSION-$arch-$BUILD
+	md5sum libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.txz > libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.md5 
+	echo libreoffice-still-l10n-$LANG > libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.con
 	)
 	rm -rf $SRC/$LANG
 	rm -rf $PKG/$LANG
@@ -98,4 +99,6 @@ done
 rm -rf $startdir/{pkg,src}
 
 # log ;) 
-) 2>&1 | tee "build-libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD.log"
+) 2>&1 | tee "build-libreoffice-l10n-packages-$VERSION-$arch-$BUILD.log"
+
+tar cvfz libreoffice-l10n-packages-$VERSION-$arch-$BUILD.tar.gz libreoffice-l10n-packages-$VERSION-$arch-$BUILD
