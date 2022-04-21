@@ -1,7 +1,7 @@
 #Maintainer: Dimitris Tzemos <dijemos~at~gmail~dot~com>
 #execute this script with arch=i686 fakeroot slkbuild -X
 #to produce the i686 binary
-#fakeroot slkbuild -X produce the x86_64 package
+#fakeroot slkbuild -X produce the x86_64 package for libreoffice
 
 pkgname=libreoffice
 pkgver=6.4.3
