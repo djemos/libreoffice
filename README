@@ -1,2 +1,10 @@
 Scripts to Download and build libreoffice, all available language and  help packs for libreoffice.org
 
+To build libreoffice with local help support first download and install libnumbertext from SBo or Slackel repos and then use the SLKBUILD 
+(run fakeroot slkbuild -X to build the package)
+
+To build the libreoffice package without local help support and only onine help support use the SLKBUILD-without-help-html 
+(cp SLKBUILD-without-help-html SLKBUILD 
+fakeroot slkbuild -X)
+
+To build the locale and help packages use the scripts in locale and f folders.
