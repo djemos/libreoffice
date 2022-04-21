@@ -1,32 +1,25 @@
 #/bin/sh
 #
-# Based upon SlackBuild by George Vlahavas (vlahavas~at~gmail~dot~com)
-# Updated by Dimitris Tzemos (djemos~at~slackel~dot~gr)
-# Former Maintainer : Frédéric Galusik <fredg~at~salixos~dot~org>
-# Current Maintainer : Dimitris Tzemos (djemos~at~slackel~dot~gr)
+# SlackBuild by Dimtris Tzemos (dijemos~at~gmail~dot~com)
 #
 # This builds all available language packs for libreoffice.org
 # Language packs were downloaded from
 #
-# http://download.documentfoundation.org/libreoffice/stable/4.0.0/deb/x86/
+# ftp://ftp.nluug.nl/pub/office/libreoffice/libreoffice/stable/3.6.1/rpm/x86/
 #
+# You need the files named *-Linux_x86_langpack-LOCALE.tar.gz
 #
 # After you download them, put them in a langpacks directory in the same
 # location as the SlackBuild file.
+# Run this script as (fake)root
+#
 
-VERSION=6.4.2
-arch=${arch:-x86_64}
+VERSION=7.3.2
+MAJORVER=`echo $VERSION | cut -d'.' -f1,2`
+ARCH=${ARCH:-x86_64}
 BUILD=1dj
 
-if [ -z "$arch" ]; then
-  case "$( uname -m )" in
-    i?86) arch=i486 ;;
-    arm*) arch=arm ;;
-       *) arch=$( uname -m ) ;;
-  esac
-fi
-
-if [ $arch = "x86_64" ];then
+if [ $ARCH = "x86_64" ];then
 	LIBDIRSUFFIX="64"
 else
 	LIBDIRSUFFIX=""
@@ -34,47 +27,40 @@ fi
 
 startdir=`pwd`
 
-rm -rf {pkg,src,libreoffice-l10n-packages-$VERSION-$arch-$BUILD}
-mkdir -p {pkg,src,libreoffice-l10n-packages-$VERSION-$arch-$BUILD}
+rm -rf {pkg,src,libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD}
 
-SRC=$startdir/src
-PKG=$startdir/pkg
+mkdir {pkg,src,libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD}
 
-# log
-(
-
-#
-#
 cd langpacks
-for i in `ls *.tar.gz`; do
+
+for i in `ls *.tar.gz`;do
 	cd $startdir/langpacks
-	LANG=`echo $i | sed "s/.*langpack_\(.*\)\.tar\.gz/\1/"`
+	LANG=`echo $i | sed "s/.*rpm_langpack_\(.*\)\.tar\.gz/\1/"`
 	LONGLANG=`grep "^$LANG " $startdir/langpack-list | sed "s/$LANG \(.*\)/\1/"`
 	echo "Found langpack ${LANG} (${LONGLANG})."
 done
 
 for i in `ls *.tar.gz`; do
 	cd $startdir/langpacks
-	LANG=`echo $i | sed "s/.*langpack_\(.*\)\.tar\.gz/\1/"`
+	LANG=`echo $i | sed "s/.*rpm_langpack_\(.*\)\.tar\.gz/\1/"`
 	LONGLANG=`grep "^$LANG " $startdir/langpack-list | sed "s/$LANG \(.*\)/\1/"`
 	echo "Creating langpack for ${LANG} (${LONGLANG})..."
-	mkdir -p $SRC/$LANG
-	tar xf $i -C $SRC/$LANG
-	
-        cd $SRC/$LANG/`ls $SRC/$LANG`/RPMS
+	mkdir -p $startdir/src/$LANG
+	tar xf $i -C $startdir/src/$LANG
+	cd $startdir/src/$LANG/`ls $startdir/src/$LANG`/RPMS
 	for rpm in `ls *.rpm`; do
 		rpm2targz $rpm
 		rm $rpm
 	done
 	for targz in `ls *.tar.gz`; do
-	    tar xf $targz
+		tar xf $targz
 	done
-	mkdir -p $PKG/$LANG/usr/lib${LIBDIRSUFFIX}/
-        mv opt/* $PKG/$LANG/usr/lib${LIBDIRSUFFIX}/ || exit 1
-	mkdir -p $PKG/$LANG/install
+	mkdir -p $startdir/pkg/$LANG/usr/lib${LIBDIRSUFFIX}
+	mv opt/libreoffice${MAJORVER} $startdir/pkg/$LANG/usr/lib${LIBDIRSUFFIX}/libreoffice
+	mkdir -p $startdir/pkg/$LANG/install
 	sed "s/__lang__/$LANG/g" $startdir/slack-desc.template | \
-	sed "s/__longlang__/$LONGLANG/g" > $PKG/$LANG/install/slack-desc
-	cd $PKG/$LANG
+	sed "s/__longlang__/$LONGLANG/g" > $startdir/pkg/$LANG/install/slack-desc
+	cd $startdir/pkg/$LANG
 	
 	# the english dictionaries seem to be included in many other
 	# langpacks for some weird reason
@@ -86,19 +72,13 @@ for i in `ls *.tar.gz`; do
 	-exec chmod 755 {} \; -o \
 	\( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
 	-exec chmod 644 {} \;
-	/sbin/makepkg -l y -c n $startdir/libreoffice-l10n-packages-$VERSION-$arch-$BUILD/libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.txz
+	/sbin/makepkg -l y -c n $startdir/libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD/libreoffice-l10n-$LANG-$MAJORVER-$ARCH-$BUILD.txz
 	(
-	cd $startdir/libreoffice-l10n-packages-$VERSION-$arch-$BUILD
-	md5sum libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.txz > libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.md5 
-	echo libreoffice-still-l10n-$LANG > libreoffice-l10n-$LANG-$VERSION-$arch-$BUILD.con
+	cd $startdir/libreoffice-l10n-packages-$VERSION-$ARCH-$BUILD
+	md5sum libreoffice-l10n-$LANG-$MAJORVER-$ARCH-$BUILD.txz > libreoffice-l10n-$LANG-$MAJORVER-$ARCH-$BUILD.md5 
 	)
-	rm -rf $SRC/$LANG
-	rm -rf $PKG/$LANG
+	rm -rf $startdir/src/$LANG
+	rm -rf $startdir/pkg/$LANG
 done
 
 rm -rf $startdir/{pkg,src}
-
-# log ;) 
-) 2>&1 | tee "build-libreoffice-l10n-packages-$VERSION-$arch-$BUILD.log"
-
-tar cvfz libreoffice-l10n-packages-$VERSION-$arch-$BUILD.tar.gz libreoffice-l10n-packages-$VERSION-$arch-$BUILD

@@ -1,0 +1,77 @@
+#Packager: Dimitris Tzemos <dijemos~at~gmail~dot~com>
+
+pkgname=libreoffice
+pkgver=7.3.2.2
+pkgrel=1dj
+_mainver=`echo $pkgver | sed "s/\(.*\)\.\(.*\)\.\(.*\)\.\(.*\)/\1.\2.\3/"`
+source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-${pkgver}.tar.xz"
+		"http://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-dictionaries-${pkgver}.tar.xz")
+docs=("readme" "install" "copying" "changelog" "authors" "news" "todo")
+url=https://www.libreoffice.org/
+
+doinst() {
+if [ -x /usr/bin/update-mime-database ]; then
+   /usr/bin/update-mime-database usr/share/mime >/dev/null 2>&1
+fi
+if [ -x /usr/bin/update-desktop-database ]; then
+   /usr/bin/update-desktop-database -q usr/share/applications >/dev/null 2>&1
+fi
+if [ -d usr/share/icons/hicolor ]; then
+  if [ -x /usr/bin/gtk-update-icon-cache ]; then
+    /usr/bin/gtk-update-icon-cache -f -t usr/share/icons/hicolor 1> /dev/null 2> /dev/null
+  fi
+fi
+}
+
+slackdesc=\
+(
+#|-----handy-ruler------------------------------------------------------|
+"libreoffice (free office suite)"
+"LibreOffice is an Open Source,community-developed,office"
+"productivity suite. It includes key desktop applications,such as a"
+"word processor,spreadsheet,presentation manager,formula editor and"
+"drawing program,with a user interface and feature set similar to"
+"other office suites. LibreOffice also works transparently with a"
+"variety of file formats,including Microsoft Office File Formats."
+""
+"libreoffice home: http://www.documentfoundation.org/"
+)
+
+
+build() {
+	cd $startdir/src/$pkgname-$pkgver
+	
+	# don't check for root when building
+	sed -i "s/bootstrap: check-if-root compilerplugins/bootstrap: compilerplugins/" Makefile.in
+
+	./configure --prefix=/usr \
+		--libdir=/usr/lib${LIBDIRSUFFIX} \
+		--localstatedir=/var \
+		--sysconfdir=/etc \
+		--enable-ext-ct2n \
+		--enable-ext-numbertext \
+		--enable-ext-languagetool \
+		--enable-ext-wiki-publisher \
+		--enable-ext-nlpsolver \
+		--enable-gio \
+		--enable-python=system \
+		--enable-gstreamer-1-0 \
+		--disable-odk \
+		--enable-gtk3 \
+		--disable-qt5 \
+		--without-helppack-integration \
+		--without-java \
+		--without-junit \
+		--without-fonts \
+		--with-lang="en-US" \
+		--with-vendor="Slackel" \
+		--enable-release-build="yes" \
+		--build=$arch-slackware-linux
+
+	make build-nocheck || exit 1
+	make DESTDIR=$startdir/pkg distro-pack-install
+
+	# add the english dictionaries and thesaurus
+	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en
+	cp -r dictionaries/en/* $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en/
+} 

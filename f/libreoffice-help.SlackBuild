@@ -2,10 +2,10 @@
 #
 # Based on SlackBuild by George Vlahavas (vlahavas~at~gmail~dot~com)
 # Updated by Dimitris Tzemos (djemos~at~slackel~dot~gr)
-# Former Maintained by Frédéric Galusik <fredg~at~salixos~dot~org>
+# Former Maintained by FrÃ©dÃ©ric Galusik <fredg~at~salixos~dot~org>
 # Current matainer : Dimitris Tzemos (djemos~at~slackel~dot~gr)
 # Downloaded from#
-# URL=http://download.documentfoundation.org/libreoffice/stable/$VERSION/rpm/$HWarch/
+# URL=http://download.documentfoundation.org/libreoffice/stable/$VERSION/rpm/$HWARCH/
 #
 # You need to create the helppacks directory in the same
 # location as the SlackBuild file.
@@ -13,20 +13,12 @@
 # Run this script as (fake)root
 #
 
-VERSION=6.4.2
-arch=${arch:-x86_64}
+VERSION=7.3.2
+MAJORVER=`echo $VERSION | cut -d'.' -f1,2`
+ARCH=${ARCH:-x86_64}
 BUILD=1dj
 
-if [ -z "$arch" ]; then
-	case "$( uname -m )" in
-		i?86) export arch=i486 ;;
-		arm*) export arch=arm ;;
-		*) export arch=$( uname -m ) ;;
-	esac
-	echo "Automatically setting arch to $arch"
-fi
-
-if [ $arch = "x86_64" ];then
+if [ $ARCH = "x86_64" ];then
 	LIBDIRSUFFIX="64"
 else
 	LIBDIRSUFFIX=""
@@ -34,14 +26,11 @@ fi
 
 startdir=`pwd`
 
-rm -rf {pkg,src,libreoffice-help-packages-$VERSION-$arch-$BUILD}
-mkdir {pkg,src,libreoffice-help-packages-$VERSION-$arch-$BUILD}
+rm -rf {pkg,src,libreoffice-help-packages-$VERSION-$ARCH-$BUILD}
+mkdir {pkg,src,libreoffice-help-packages-$VERSION-$ARCH-$BUILD}
 
 SRC=$startdir/src
 PKG=$startdir/pkg
-
-# log
-(
 
 cd helppacks
 
@@ -73,6 +62,10 @@ for i in `ls *.tar.gz`; do
 	sed "s/__lang__/$LANG/g" $startdir/slack-desc.template | \
 	sed "s/__longlang__/$LONGLANG/g" > $startdir/pkg/$LANG/install/slack-desc
 	cd $PKG/$LANG
+
+	# The rpm packages use a versioned directory name, so we just get
+        # rid of it
+        mv usr/lib${LIBDIRSUFFIX}/libreoffice* usr/lib${LIBDIRSUFFIX}/libreoffice
 	
 	# the english dictionaries seem to be included in many other
 	# langpacks for some weird reason
@@ -84,19 +77,13 @@ for i in `ls *.tar.gz`; do
 	-exec chmod 755 {} \; -o \
 	\( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
 	-exec chmod 644 {} \;
-	/sbin/makepkg -l y -c n $startdir/libreoffice-help-packages-$VERSION-$arch-$BUILD/libreoffice-help-$LANG-$VERSION-$arch-$BUILD.txz
+	/sbin/makepkg -l y -c n $startdir/libreoffice-help-packages-$VERSION-$ARCH-$BUILD/libreoffice-help-$LANG-$MAJORVER-$ARCH-$BUILD.txz
 	(
-	cd $startdir/libreoffice-help-packages-$VERSION-$arch-$BUILD
-	md5sum libreoffice-help-$LANG-$VERSION-$arch-$BUILD.txz > libreoffice-help-$LANG-$VERSION-$arch-$BUILD.md5
-	echo libreoffice-still-help-$LANG > libreoffice-help-$LANG-$VERSION-$arch-$BUILD.con
+	cd $startdir/libreoffice-help-packages-$VERSION-$ARCH-$BUILD
+	md5sum libreoffice-help-$LANG-$MAJORVER-$ARCH-$BUILD.txz > libreoffice-help-$LANG-$MAJORVER-$ARCH-$BUILD.md5 
 	)
 	rm -rf $SRC/$LANG
 	rm -rf $PKG/$LANG
 done
 
 rm -rf $startdir/{pkg,src}
-
-# log ;) 
-) 2>&1 | tee "build-libreoffice-help-packages-$VERSION-$arch-$BUILD.log"
-
-tar cvfz libreoffice-help-packages-$VERSION-$arch-$BUILD.tar.gz libreoffice-help-packages-$VERSION-$arch-$BUILD
