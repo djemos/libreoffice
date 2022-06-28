@@ -1,89 +1,23 @@
 #Packager: Dimitris Tzemos <dijemos~at~gmail~dot~com>
-#libnumbertext have to installed from SBo or Slackel repos before running this script.
+#before running this script.
+#libnumbertext have to be installed https://people.salixos.org/djemos/salix/libnumbertext/
+#apache-ant have to be installed https://people.salixos.org/djemos/salix/apache-ant/
+#openjdk have to be installed https://people.salixos.org/djemos/salix/openjdk/17.0.3.u7/
+#REMOVE any previous libreoffice installations otherwise build will fail.
 
 pkgname=libreoffice
-pkgver=7.3.2.2
+pkgver=7.3.4.2
 pkgrel=1dj
 _mainver=`echo $pkgver | sed "s/\(.*\)\.\(.*\)\.\(.*\)\.\(.*\)/\1.\2.\3/"`
 source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-${pkgver}.tar.xz"
 		"http://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-dictionaries-${pkgver}.tar.xz"
 		"http://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-help-${pkgver}.tar.xz"
-		https://dev-www.libreoffice.org/src/0168229624cfac409e766913506961a8-ucpp-1.3.2.tar.gz
-https://dev-www.libreoffice.org/src/1f467e5bb703f12cbbb09d5cf67ecf4a-converttexttonumber-1-5-0.oxt
-https://dev-www.libreoffice.org/src/1f5def51ca0026cd192958ef07228b52-rasqal-0.9.33.tar.gz
-https://dev-www.libreoffice.org/src/26b3e95ddf3d9c077c480ea45874b3b8-lp_solve_5.5.tar.gz
-https://dev-www.libreoffice.org/src/48d647fbd8ef8889e5a7f422c1bfda94-clucene-core-2.3.3.4.tar.gz
-https://dev-www.libreoffice.org/src/5ade6ae2a99bc1e9e57031ca88d36dad-hyphen-2.8.8.tar.gz
-https://dev-www.libreoffice.org/src/CoinMP-1.7.6.tgz
-https://dev-www.libreoffice.org/src/Firebird-3.0.7.33374-0.tar.bz2
-https://dev-www.libreoffice.org/src/a39f6c07ddb20d7dd2ff1f95fa21e2cd-raptor2-2.0.15.tar.gz
-https://dev-www.libreoffice.org/src/a8c2c5b8f09e7ede322d5c602ff6a4b6-mythes-1.2.4.tar.gz
-https://dev-www.libreoffice.org/src/boost_1_77_0.tar.xz
-https://dev-www.libreoffice.org/src/box2d-2.3.1.tar.gz
-https://dev-www.libreoffice.org/src/cppunit-1.15.1.tar.gz
-https://dev-www.libreoffice.org/src/curl-7.79.1.tar.xz
-https://dev-www.libreoffice.org/src/dtoa-20180411.tgz
-https://dev-www.libreoffice.org/src/e5be03eda13ef68aabab6e42aa67715e-redland-1.0.17.tar.gz
-https://dev-www.libreoffice.org/src/expat-2.4.6.tar.xz
-https://dev-www.libreoffice.org/extern/f543e6e2d7275557a839a164941c0a86e5f2c3f2a0042bfc434c88c6dde9e140-opens___.ttf
-https://dev-www.libreoffice.org/src/glm-0.9.9.8.zip
-https://dev-www.libreoffice.org/src/gpgme-1.16.0.tar.bz2
-https://dev-www.libreoffice.org/src/graphite2-minimal-1.3.14.tgz
-https://dev-www.libreoffice.org/src/harfbuzz-2.8.2.tar.xz
-https://dev-www.libreoffice.org/src/hunspell-1.7.0.tar.gz
-https://dev-www.libreoffice.org/src/icu4c-70_1-data.zip
-https://dev-www.libreoffice.org/src/icu4c-70_1-src.tgz
-https://dev-www.libreoffice.org/src/language-subtag-registry-2021-12-29.tar.bz2
-https://dev-www.libreoffice.org/src/lcms2-2.12.tar.gz
-https://dev-www.libreoffice.org/src/libabw-0.1.3.tar.xz
-https://dev-www.libreoffice.org/src/libassuan-2.5.5.tar.bz2
-https://dev-www.libreoffice.org/src/libcdr-0.1.7.tar.xz
-https://dev-www.libreoffice.org/src/libcmis-0.5.2.tar.xz
-https://dev-www.libreoffice.org/src/libcuckoo-93217f8d391718380c508a722ab9acd5e9081233.tar.gz
-https://dev-www.libreoffice.org/src/libe-book-0.1.3.tar.xz
-https://dev-www.libreoffice.org/src/libepoxy-1.5.9.tar.xz
-https://dev-www.libreoffice.org/src/libepubgen-0.1.1.tar.xz
-https://dev-www.libreoffice.org/src/libetonyek-0.1.10.tar.xz
-https://dev-www.libreoffice.org/src/libexttextcat-3.4.6.tar.xz
-https://dev-www.libreoffice.org/src/libfreehand-0.1.2.tar.xz
-https://dev-www.libreoffice.org/src/libgpg-error-1.43.tar.bz2
-https://dev-www.libreoffice.org/src/libjpeg-turbo-2.1.1.tar.gz
-https://dev-www.libreoffice.org/src/liblangtag-0.6.3.tar.bz2
-https://dev-www.libreoffice.org/src/libmspub-0.1.4.tar.xz
-https://dev-www.libreoffice.org/src/libmwaw-0.3.21.tar.xz
-https://dev-www.libreoffice.org/src/libnumbertext-1.0.8.tar.xz
-https://dev-www.libreoffice.org/src/libodfgen-0.1.8.tar.xz
-https://dev-www.libreoffice.org/src/liborcus-0.17.2.tar.bz2
-https://dev-www.libreoffice.org/src/libpagemaker-0.0.4.tar.xz
-https://dev-www.libreoffice.org/src/libpng-1.6.37.tar.xz
-https://dev-www.libreoffice.org/src/libqxp-0.0.2.tar.xz
-https://dev-www.libreoffice.org/src/libreoffice-help-7.3.2.2.tar.xz
-https://dev-www.libreoffice.org/src/librevenge-0.0.4.tar.bz2
-https://dev-www.libreoffice.org/src/libstaroffice-0.0.7.tar.xz
-https://dev-www.libreoffice.org/src/libvisio-0.1.7.tar.xz
-https://dev-www.libreoffice.org/src/libwpd-0.10.3.tar.xz
-https://dev-www.libreoffice.org/src/libwpg-0.3.3.tar.xz
-https://dev-www.libreoffice.org/src/libwps-0.4.12.tar.xz
-https://dev-www.libreoffice.org/src/libzmf-0.0.2.tar.xz
-https://dev-www.libreoffice.org/src/ltm-1.0.zip
-https://dev-www.libreoffice.org/src/mariadb-connector-c-3.1.8-src.tar.gz
-https://dev-www.libreoffice.org/src/mdds-2.0.1.tar.bz2
-https://dev-www.libreoffice.org/src/nss-3.73-with-nspr-4.32.tar.gz
-https://dev-www.libreoffice.org/src/openldap-2.4.59.tgz
-https://dev-www.libreoffice.org/src/openssl-1.1.1l.tar.gz
-https://dev-www.libreoffice.org/src/pdfium-4699.tar.bz2
-https://dev-www.libreoffice.org/src/poppler-21.11.0.tar.xz
-https://dev-www.libreoffice.org/src/poppler-data-0.4.10.tar.gz
-https://dev-www.libreoffice.org/src/postgresql-13.5.tar.bz2
-https://dev-www.libreoffice.org/src/skia-m97-a7230803d64ae9d44f4e1282444801119a3ae967.tar.xz
-https://dev-www.libreoffice.org/src/xmlsec1-1.2.33.tar.gz
-https://dev-www.libreoffice.org/src/zxing-cpp-1.2.0.tar.gz
 )
 		
 docs=("readme" "install" "copying" "changelog" "authors" "news" "todo")
 url=https://www.libreoffice.org/
 
-doinst() {
+https://dev-www.libreoffice.org/src/doinst() {
 if [ -x /usr/bin/update-mime-database ]; then
    /usr/bin/update-mime-database usr/share/mime >/dev/null 2>&1
 fi
@@ -117,14 +51,14 @@ build() {
 	
 	# don't check for root when building
 	sed -i "s/bootstrap: check-if-root compilerplugins/bootstrap: compilerplugins/" Makefile.in
-
-	./configure --prefix=/usr \
+./autogen.sh \
+    CFLAGS="$SLKCFLAGS" \
+    CXXFLAGS="$SLKCFLAGS" \
+		--prefix=/usr \
 		--libdir=/usr/lib${LIBDIRSUFFIX} \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
 		--enable-ext-ct2n \
-		--with-external-tar=$SRC \
-		--disable-fetch-external \
 		--with-system-libnumbertext \
 		--enable-ext-languagetool \
 		--enable-ext-wiki-publisher \
@@ -136,7 +70,9 @@ build() {
 		--enable-gtk3 \
 		--disable-qt5 \
 		--with-help=html \
-		--without-java \
+		--with-jdk-home=$JAVA_HOME \
+		--with-ant-home=/usr/share/ant \
+		--enable-scripting-javascript \
 		--without-junit \
 		--without-fonts \
 		--with-lang="en-US" \
