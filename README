@@ -1,7 +1,7 @@
 before running the SLKBUILD script (fakeroot slkbuild -X)
 libnumbertext have to be installed https://people.salixos.org/djemos/salix/libnumbertext/
 apache-ant have to be installed https://people.salixos.org/djemos/salix/apache-ant/
-openjdk have to be installed https://people.salixos.org/djemos/salix/openjdk/17.0.3.u7/
+openjdk have to be installed https://people.salixos.org/djemos/salix/openjdk/17.0.3.u7/ After installation can remove openjdk and install openjre which is small in size.
 REMOVE any previous libreoffice installations otherwise build will fail.
 
 To build the locale and help packages use the scripts in locale and f folders.
