@@ -14,4 +14,5 @@ To build the libreoffice package without local help support and only onine help 
 fakeroot slkbuild -X)
 
 To build the locale and help packages use the scripts in locale and f folders.
-
+All help and locale packages for 7.3 https://sourceforge.net/projects/slackel/files/repo/libreoffice/]7.3.2  
+or download only packages for your language http://www.slackel.gr/repo/x86_64/current/slackel/locale/ and http://www.slackel.gr/repo/i486/current/slackel/locale/
