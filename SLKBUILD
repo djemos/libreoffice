@@ -52,15 +52,11 @@ build() {
 	# don't check for root when building
 	sed -i "s/bootstrap: check-if-root compilerplugins/bootstrap: compilerplugins/" Makefile.in
 ./autogen.sh \
-    CFLAGS="$SLKCFLAGS" \
-    CXXFLAGS="$SLKCFLAGS" \
 		--prefix=/usr \
 		--libdir=/usr/lib${LIBDIRSUFFIX} \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
-		--enable-ext-ct2n \
 		--with-system-libnumbertext \
-		--enable-ext-languagetool \
 		--enable-ext-wiki-publisher \
 		--enable-ext-nlpsolver \
 		--enable-gio \
@@ -93,4 +89,7 @@ build() {
 	# add the english dictionaries and thesaurus
 	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en
 	cp -r dictionaries/en/* $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en/
+	
+	# math out of the education category
+	sed -i "/^Categories=/s/Education;//" $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/xdg/math.desktop
 } 
