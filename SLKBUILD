@@ -17,7 +17,7 @@ source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/lib
 docs=("readme" "install" "copying" "changelog" "authors" "news" "todo")
 url=https://www.libreoffice.org/
 
-https://dev-www.libreoffice.org/src/doinst() {
+doinst() {
 if [ -x /usr/bin/update-mime-database ]; then
    /usr/bin/update-mime-database usr/share/mime >/dev/null 2>&1
 fi
