@@ -5,5 +5,5 @@ openjdk have to be installed https://people.salixos.org/djemos/salix/openjdk/17.
 REMOVE any previous libreoffice installations otherwise build will fail.
 
 To build the locale and help packages use the scripts in locale and f folders.
-libreoffice and all help and locale packages for 7.4 https://sourceforge.net/projects/slackel/files/repo/libreoffice/ 
+libreoffice and all help and locale packages for 7.4.2 https://sourceforge.net/projects/slackel/files/repo/libreoffice/ 
 or download only packages for your language http://www.slackel.gr/repo/x86_64/current/slackel/locale/ and http://www.slackel.gr/repo/i486/current/slackel/locale/
