@@ -1,12 +1,7 @@
 #Packager: Dimitris Tzemos <dijemos~at~gmail~dot~com>
-#before running this script.
-#libnumbertext have to be installed https://people.salixos.org/djemos/salix/libnumbertext/
-#apache-ant have to be installed https://people.salixos.org/djemos/salix/apache-ant/
-#openjdk have to be installed https://people.salixos.org/djemos/salix/openjdk/17.0.3.u7/
-#REMOVE any previous libreoffice installations otherwise build will fail.
 
 pkgname=libreoffice
-pkgver=7.3.5.2
+pkgver=7.4.2.3
 pkgrel=1dj
 _mainver=`echo $pkgver | sed "s/\(.*\)\.\(.*\)\.\(.*\)\.\(.*\)/\1.\2.\3/"`
 source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-${pkgver}.tar.xz"
@@ -51,12 +46,12 @@ build() {
 	
 	# don't check for root when building
 	sed -i "s/bootstrap: check-if-root compilerplugins/bootstrap: compilerplugins/" Makefile.in
-./autogen.sh \
+	./autogen.sh \
 		--prefix=/usr \
 		--libdir=/usr/lib${LIBDIRSUFFIX} \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
-		--with-system-libnumbertext \
+		--enable-ext-numbertext \
 		--enable-ext-wiki-publisher \
 		--enable-ext-nlpsolver \
 		--enable-gio \
@@ -76,20 +71,20 @@ build() {
 		--enable-release-build="yes" \
 		--build=$arch-slackware-linux
 		
-	make build-nocheck || exit 1
+	make build || exit 1
 	make DESTDIR=$startdir/pkg distro-pack-install
 	
 	# Make all i18n lang packages with help section ('1') available to
 	# fix "F1" not opening translated offline help opening in browser
 	# see also /usr/lib${LIBDIRSUFFFIX}/libreoffice/help/en-US/langnames.js	
-	mkdir -p $PKG/usr/lib${LIBDIRSUFFIX}/libreoffice/help
+	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/help
 	echo "var languagesSet = new Set(['en-US', 'ar', 'bg', 'bn', 'bo', 'bs', 'ca', 'cs', 'da', 'de', 'el', 'en-GB', 'eo', 'es', 'et', 'eu', 'fi', 'fr', 'gl', 'he', 'hi', 'hr', 'hu', 'id', 'is', 'it', 'ja', 'ko', 'lt', 'lv', 'nb', 'nl', 'nn', 'pl', 'pt', 'pt-BR', 'ro', 'ru', 'si', 'sk', 'sl', 'sv', 'ta', 'tr', 'uk', 'vi', 'zh-CN', 'zh-TW']);" \
-		> $PKG/usr/lib${LIBDIRSUFFIX}/libreoffice/help/languages.js
+		> $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/help/languages.js
 	
 	# add the english dictionaries and thesaurus
 	mkdir -p $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en
 	cp -r dictionaries/en/* $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/extensions/dict-en/
-	
+
 	# math out of the education category
 	sed -i "/^Categories=/s/Education;//" $startdir/pkg/usr/lib${LIBDIRSUFFIX}/libreoffice/share/xdg/math.desktop
 } 
