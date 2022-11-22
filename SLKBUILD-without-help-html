@@ -1,7 +1,7 @@
 #Packager: Dimitris Tzemos <dijemos~at~gmail~dot~com>
 
 pkgname=libreoffice
-pkgver=7.3.4.2
+pkgver=7.4.2.3
 pkgrel=1dj
 _mainver=`echo $pkgver | sed "s/\(.*\)\.\(.*\)\.\(.*\)\.\(.*\)/\1.\2.\3/"`
 source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-${pkgver}.tar.xz"
