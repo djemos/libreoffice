@@ -1,4 +1,4 @@
-sh
+#/bin/sh
 #
 # Based on SlackBuild by George Vlahavas (vlahavas~at~gmail~dot~com)
 # Updated by Dimitris Tzemos (djemos~at~slackel~dot~gr)
