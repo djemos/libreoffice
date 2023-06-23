@@ -14,7 +14,7 @@
 # Run this script as (fake)root
 #
 
-VERSION=7.5.0
+VERSION=7.5.4
 MAJORVER=`echo $VERSION | cut -d'.' -f1,2`
 ARCH=${ARCH:-x86_64}
 BUILD=1dj
