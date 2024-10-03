@@ -1,8 +1,8 @@
 #Packager: Dimitris Tzemos <dijemos~at~gmail~dot~com>
 
 pkgname=libreoffice
-pkgver=7.6.1
-_pkgver=7.6.1.2
+pkgver=24.8.1
+_pkgver=24.8.1.1
 pkgrel=1dj
 _mainver=`echo $pkgver | sed "s/\(.*\)\.\(.*\)\.\(.*\)\.\(.*\)/\1.\2.\3/"`
 source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-${_pkgver}.tar.xz"
@@ -45,14 +45,27 @@ slackdesc=\
 build() {
 	cd $startdir/src/$pkgname-${_pkgver}
 	
+	unset UNO_PATH
+	unset URE_BOOTSTRAP
+	source /etc/profile.d/openjdk.sh
+	
 	# don't check for root when building
 	sed -i "s/bootstrap: check-if-root compilerplugins/bootstrap: compilerplugins/" Makefile.in
+	   
+	# GCC10 requirements:
+	sed -i external/libcdr/ExternalProject_libcdr.mk \
+		-e '/configure /i \\t\t&& sed -i "s/TRUE/true/g" src/lib/libcdr_utils.cpp \\'
+	sed -i external/libebook/ExternalProject_libebook.mk \
+		-e '/configure /i \\t\t&& sed -i "s/TRUE/true/g" src/lib/EBOOKCharsetConverter.cpp \\'
+	sed -i i18npool/source/calendar/calendar_gregorian.cxx -e 's/TRUE/true/'
+
 	./autogen.sh \
 		--prefix=/usr \
 		--libdir=/usr/lib${LIBDIRSUFFIX} \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
 		--enable-ext-numbertext \
+		--with-system-liblangtag \
 		--enable-ext-wiki-publisher \
 		--enable-ext-nlpsolver \
 		--enable-gio \
