@@ -9,6 +9,7 @@ HWarch=$([ $arch = x86_64 ] && echo "x86_64" || echo "x86")
 #URL=https://download.documentfoundation.org/libreoffice/stable/$VERSION/rpm/$HWarch/
 #URL=http://mirror.catn.com/pub/tdf/libreoffice/stable/$VERSION/rpm/$HWarch/
 URL=http://ftp.osuosl.org/pub/tdf/libreoffice/stable/$VERSION/rpm/$HWarch/
+#URL=http://ftp.osuosl.org/pub/tdf/libreoffice/testing/$VERSION/rpm/$HWarch/
 
 pkgdir=helppacks
 
