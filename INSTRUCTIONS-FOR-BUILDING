@@ -2,9 +2,10 @@ Scripts to Download and build libreoffice, all available language and  help pack
 before running the scripts
 libnumbertext have to be installed https://people.salixos.org/djemos/salix/libnumbertext/
 apache-ant have to be installed https://people.salixos.org/djemos/salix/apache-ant/
-openjdk have to be installed https://people.salixos.org/djemos/salix/openjdk/17.0.3.u7/ After installation can remove openjdk and install openjre which is small in size.
+openjdk have to be installed https://people.salixos.org/djemos/salix/openjdk/17.0.3.u7/
+After installation can remove openjdk and install openjre which is small in size.
 
-REMOVE any previous libreoffice installations otherwise build will fail.
+In cace build fails then REMOVE any previous libreoffice installations.
 
 To build libreoffice with local help and java support use the SLKBUILD 
 (run fakeroot slkbuild -X to build the package)
