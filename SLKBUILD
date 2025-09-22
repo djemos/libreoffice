@@ -1,8 +1,8 @@
 #Packager: Dimitris Tzemos <dijemos~at~gmail~dot~com>
 
 pkgname=libreoffice
-pkgver=25.2.1
-_pkgver=25.2.1.2
+pkgver=25.8.1
+_pkgver=25.8.1.1
 pkgrel=1dj
 _mainver=`echo $pkgver | sed "s/\(.*\)\.\(.*\)\.\(.*\)\.\(.*\)/\1.\2.\3/"`
 source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-${_pkgver}.tar.xz"
@@ -64,8 +64,8 @@ build() {
 		--libdir=/usr/lib${LIBDIRSUFFIX} \
 		--localstatedir=/var \
 		--sysconfdir=/etc \
-		--enable-ext-numbertext \
 		--with-system-liblangtag \
+		--with-system-libnumbertext \
 		--enable-ext-wiki-publisher \
 		--enable-ext-nlpsolver \
 		--enable-gio \
