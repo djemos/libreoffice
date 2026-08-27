@@ -1,8 +1,8 @@
 #Packager: Dimitris Tzemos <dijemos~at~gmail~dot~com>
 
 pkgname=libreoffice
-pkgver=26.2.5
-_pkgver=26.2.5.2
+pkgver=26.8.0
+_pkgver=26.8.0.3
 pkgrel=1dj
 _mainver=`echo $pkgver | sed "s/\(.*\)\.\(.*\)\.\(.*\)\.\(.*\)/\1.\2.\3/"`
 source=("https://download.documentfoundation.org/libreoffice/src/${_mainver}/libreoffice-${_pkgver}.tar.xz"
@@ -48,10 +48,17 @@ build() {
 	unset UNO_PATH
 	unset URE_BOOTSTRAP
 	source /etc/profile.d/openjdk.sh
-	
+
+	if [ "$arch" = "i586" ] || [ "$arch" = "i686" ]; then
+	# Ensure SSE/SSE2 support for GCC 15 on i586 or i686 (fixes Box2D crash)
+	  export CFLAGS="$CFLAGS -O2 -msse -msse2 -mfpmath=sse"
+	  export CXXFLAGS="$CXXFLAGS -O2 -msse -msse2 -mfpmath=sse"
+	fi
+
 	# don't check for root when building
-	sed -i "s/bootstrap: check-if-root compilerplugins/bootstrap: compilerplugins/" Makefile.in
-	   
+	#sed -i "s/bootstrap: check-if-root compilerplugins/bootstrap: compilerplugins/" Makefile.in
+	sed -i "s/bootstrap: check-if-root check-makefile-version compilerplugins/bootstrap: check-makefile-version compilerplugins/" Makefile.in
+   
 	# GCC10 requirements:
 	sed -i external/libcdr/ExternalProject_libcdr.mk \
 		-e '/configure /i \\t\t&& sed -i "s/TRUE/true/g" src/lib/libcdr_utils.cpp \\'
