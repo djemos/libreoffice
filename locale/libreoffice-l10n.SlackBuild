@@ -17,7 +17,7 @@
 VERSION=26.8.1
 MAJORVER=`echo $VERSION | cut -d'.' -f1,2`
 ARCH=${ARCH:-x86_64}
-BUILD=3dj
+BUILD=1dj
 
 if [ $ARCH = "x86_64" ];then
 	LIBDIRSUFFIX="64"
